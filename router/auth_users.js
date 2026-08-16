@@ -6,7 +6,6 @@ const regd_users = express.Router();
 let users = [];
 
 const isValid = (username) => {
-  // Check if the username is valid (non-empty string and not already registered)
   let userswithsamename = users.filter((user) => {
     return user.username === username;
   });
@@ -14,7 +13,6 @@ const isValid = (username) => {
 };
 
 const authenticatedUser = (username, password) => {
-  // Check if username and password match the records
   let matchingusers = users.filter((user) => {
     return (user.username === username && user.password === password);
   });
@@ -31,12 +29,10 @@ regd_users.post("/login", (req, res) => {
   }
 
   if (authenticatedUser(username, password)) {
-    // Generate JWT Access token
     let accessToken = jwt.sign({
       data: username
     }, 'access', { expiresIn: 60 * 60 });
 
-    // Store access token and username in session
     req.session.authorization = {
       accessToken,
       username
@@ -48,7 +44,7 @@ regd_users.post("/login", (req, res) => {
   }
 });
 
-// Task 8: Add or modify a book review
+// Task 8: Add or modify a book review (Task 9)
 regd_users.put("/auth/review/:isbn", (req, res) => {
   const isbn = req.params.isbn;
   const review = req.query.review;
@@ -65,10 +61,13 @@ regd_users.put("/auth/review/:isbn", (req, res) => {
   // Add or update review for this user
   books[isbn].reviews[username] = review;
 
-  return res.status(200).send(`The review for the book with ISBN ${isbn} has been added/updated.`);
+  return res.status(200).json({
+    message: `The review for the book with ISBN ${isbn} has been added/updated.`,
+    reviews: books[isbn].reviews
+  });
 });
 
-// Task 9: Delete a book review
+// Task 9: Delete a book review (Task 10)
 regd_users.delete("/auth/review/:isbn", (req, res) => {
   const isbn = req.params.isbn;
   const username = req.session.authorization['username'];
